@@ -679,7 +679,7 @@ SUCC_bag.keyring.bags = {-2}
 SUCC_bag.keyring:SetScript('OnShow', function()
 	if SUCC_bag:IsVisible() then
 		this:ClearAllPoints()
-		this:SetPoint('BOTTOMLEFT', SUCC_bag, 'TOPLEFT', 0, 0)
+		this:SetPoint('BOTTOMLEFT', SUCC_bag, 'TOPLEFT', 0, 18)
 	end
 	PlaySound('KeyRingOpen')
 end)
