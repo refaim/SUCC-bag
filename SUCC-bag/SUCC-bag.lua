@@ -617,6 +617,7 @@ local function OnEvent()
 		CloseBackpack = CloseBag
 		CloseAllBags = function() SBFrameClose(SUCC_bag) end
 		ToggleKeyRing = function() SBFrameToggle(SUCC_bag.keyring) end
+		SUCC_search()
 		-- configuration
 		SLASH_SUCC_BAG1 = '/succbag'
 		print('|cFFF6A3EFSUCC-bag loaded. /succbag - configuration')
@@ -990,4 +991,72 @@ end
 SlashCmdList['SUCC_BAG'] = function()
 	if not menu then CreateMenuFrame() end
 	if menu:IsShown() then menu:Hide() else menu:Show() end
+end
+
+function SUCC_search()
+	if not SUCC_bag.search then
+		SUCC_bag.search = CreateFrame("Frame", "SUCC_search", SUCC_bag)
+		SUCC_bag.search:SetPoint("BOTTOMLEFT", SUCC_bag, "TOPLEFT", 9, 3)
+		SUCC_bag.search:SetPoint("TOPRIGHT", SUCC_bag, "TOPRIGHT", -1, 15)
+		
+		SUCC_bag.search.edit = CreateFrame("EditBox", nil, SUCC_bag.search, "InputBoxTemplate")		
+		SUCC_bag.search.edit:ClearAllPoints()
+		SUCC_bag.search.edit:SetAllPoints(SUCC_bag.search)
+
+		SUCC_bag.search.edit.text = SUCC_bag.search:CreateFontString(nil, "HIGH", "GameTooltipTextSmall")
+		local font, size = SUCC_bag.search.edit.text:GetFont()
+
+		SUCC_bag.search.edit:SetFont(font, size, "OUTLINE")
+		SUCC_bag.search.edit:SetAutoFocus(false)
+		SUCC_bag.search.edit:SetText("Search")
+		SUCC_bag.search.edit:SetTextColor(1,1,1,1)
+
+		local function Alpha(frame, a)
+			if frame:IsVisible() then
+				local frameName = frame:GetName()
+				for slot=1, frame.size do
+					getglobal(frameName.."Item"..slot):SetAlpha(a)
+				end
+			end
+		end
+
+		local function Search(frame)
+			if frame:IsVisible() then
+				local frameName = frame:GetName()
+				for slot = 1, frame.size do
+					local item = getglobal(frameName.."Item"..slot)
+					local _, itemCount = GetContainerItemInfo(item:GetParent():GetID(), item:GetID())
+					if itemCount then
+						local itemLink = GetContainerItemLink(item:GetParent():GetID(), item:GetID())
+						local itemstring = string.sub(itemLink, string.find(itemLink, "%[")+1, string.find(itemLink, "%]")-1)
+						if strfind(strlower(itemstring), strlower(string.gsub(this:GetText(), "([^%w])", "%%%1"))) then
+							item:SetAlpha(1)
+						end
+					end
+				end
+			end
+		end
+
+		SUCC_bag.search.edit:SetScript("OnEditFocusGained", function()
+			this:SetText("")
+		end)
+
+		SUCC_bag.search.edit:SetScript("OnEditFocusLost", function()
+			this:SetText("Search")
+			Alpha(SUCC_bag, 1)
+			Alpha(SUCC_bag.bank, 1)
+			Alpha(SUCC_bag.keyring, 1)
+		end)
+
+		SUCC_bag.search.edit:SetScript("OnTextChanged", function()
+			if this:GetText() == "Search" then return end
+			Alpha(SUCC_bag, .25)
+			Alpha(SUCC_bag.bank, .25)
+			Alpha(SUCC_bag.keyring, .25)
+
+			Search(SUCC_bag)
+			Search(SUCC_bag.bank)
+			Search(SUCC_bag.keyring)
+		end)
+	end
 end
