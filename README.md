@@ -1,7 +1,9 @@
 # SUCC-bag
-Sublime User Convenience Collection - player inventory and bank
+Sublime User Convenience Collection - player inventory and bank (with added search bar)
 
 ![succ-bag](https://cloud.githubusercontent.com/assets/17740865/23642754/f5d4baa6-02b1-11e7-89ad-db77a9b3a6c3.jpg)
+
+![succ-search](https://raw.githubusercontent.com/GryllsAddons/AddonPreviews/main/SUCC-bag/SUCC_search.png)
 
 Sorting feature with [Clean_Up](https://github.com/shirsig/Clean_Up) addon
 
