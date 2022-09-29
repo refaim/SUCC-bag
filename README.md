@@ -1,4 +1,4 @@
-# SUCC-bag (with Search)
+# SUCC-bag (with search)
 Sublime User Convenience Collection - player inventory and bank    
 *This fork adds a search bar to the bags that allows you to filter items in the bags, bank and keyring)*    
 
