@@ -26,8 +26,6 @@ function SUCC_bagDefaults()
 	SUCC_bagOptions.pos.bagt = nil
 	SUCC_bagOptions.pos.bankl = nil
 	SUCC_bagOptions.pos.bankt = nil
-	SUCC_bagOptions.pos.keyringl = nil
-	SUCC_bagOptions.pos.keyringt = nil
 	return SUCC_bagOptions
 end
 
