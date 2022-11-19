@@ -20,6 +20,14 @@ function SUCC_bagDefaults()
 	SUCC_bagOptions.layout.columns.bag = 8
 	SUCC_bagOptions.layout.columns.bank = 8
 	SUCC_bagOptions.Clean_Up = 1
+	-- positions
+	SUCC_bagOptions.pos = {}
+	SUCC_bagOptions.pos.bagl = nil
+	SUCC_bagOptions.pos.bagt = nil
+	SUCC_bagOptions.pos.bankl = nil
+	SUCC_bagOptions.pos.bankt = nil
+	SUCC_bagOptions.pos.keyringl = nil
+	SUCC_bagOptions.pos.keyringt = nil
 	return SUCC_bagOptions
 end
 
@@ -369,7 +377,7 @@ end
 local function Essentials(frame)
 	local t = frame:GetName()
 	frame:SetScript('OnMouseDown', function() this:StartMoving() end)
-	frame:SetScript('OnMouseUp', function() this:StopMovingOrSizing() end)
+	frame:SetScript('OnMouseUp', function() this:StopMovingOrSizing() end)	
 	frame:SetToplevel()
 	frame:EnableMouse()
 	frame:SetMovable()
@@ -607,7 +615,7 @@ local function OnEvent()
 		this.bags = {0, 1, 2, 3, 4}
 		Essentials(this)
 		Essentials(this.keyring)
-		PrepareBank(this)
+		PrepareBank(this)		
 		ToggleBag = function() SBFrameToggle(SUCC_bag) end
 		ToggleBackpack = ToggleBag
 		OpenAllBags = ToggleBag
@@ -618,6 +626,7 @@ local function OnEvent()
 		CloseAllBags = function() SBFrameClose(SUCC_bag) end
 		ToggleKeyRing = function() SBFrameToggle(SUCC_bag.keyring) end
 		SUCC_search()
+		SUCC_positions()	
 		-- configuration
 		SLASH_SUCC_BAG1 = '/succbag'
 		print('|cFFF6A3EFSUCC-bag loaded. /succbag - configuration')
@@ -1058,5 +1067,29 @@ function SUCC_search()
 			Search(SUCC_bag.bank)
 			Search(SUCC_bag.keyring)
 		end)
+	end
+end
+
+function SUCC_positions()
+	SUCC_bagOptions.pos = {}
+
+	SUCC_bag:SetScript('OnMouseUp', function() 
+		this:StopMovingOrSizing()
+		SUCC_bagOptions.pos.bagl = this:GetLeft()
+		SUCC_bagOptions.pos.bagt= this:GetTop()
+	end)
+
+	SUCC_bag.bank:SetScript('OnMouseUp', function() 
+		this:StopMovingOrSizing()
+		SUCC_bagOptions.pos.bankl = this:GetLeft()
+		SUCC_bagOptions.pos.bankt = this:GetTop()
+	end)
+
+	if (SUCC_bagOptions.pos.bagl and SUCC_bagOptions.pos.bagt) then
+		SUCC_bag:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", SUCC_bagOptions.pos.bagl, SUCC_bagOptions.pos.bagt)
+	end
+
+	if (SUCC_bagOptions.pos.bankl and SUCC_bagOptions.pos.bankt) then
+		SUCC_bag.bank:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", SUCC_bagOptions.pos.bankl, SUCC_bagOptions.pos.bankt)
 	end
 end
