@@ -610,6 +610,7 @@ local function OnEvent()
 		this:RegisterEvent('CURSOR_UPDATE')
 		this:RegisterEvent('BANKFRAME_OPENED')
 		this:RegisterEvent('BANKFRAME_CLOSED')
+		this:RegisterEvent('PLAYER_ENTERING_WORLD')
 		this.bags = {0, 1, 2, 3, 4}
 		Essentials(this)
 		Essentials(this.keyring)
@@ -624,7 +625,9 @@ local function OnEvent()
 		CloseAllBags = function() SBFrameClose(SUCC_bag) end
 		ToggleKeyRing = function() SBFrameToggle(SUCC_bag.keyring) end
 		SUCC_search()
-		SUCC_positions()	
+		if event == 'PLAYER_ENTERING_WORLD' then
+		SUCC_positions()
+		end
 		-- configuration
 		SLASH_SUCC_BAG1 = '/succbag'
 		print('|cFFF6A3EFSUCC-bag loaded. /succbag - configuration')
