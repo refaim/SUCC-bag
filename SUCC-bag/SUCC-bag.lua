@@ -66,7 +66,7 @@ local function SUCC_search()
 	end
 end
 
-local function SUCC_positions()
+local function SUCC_positions()	
 	if (SUCC_bagOptions.pos.bagl and SUCC_bagOptions.pos.bagt) then
 		SUCC_bag:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", SUCC_bagOptions.pos.bagl, SUCC_bagOptions.pos.bagt)
 	end
@@ -90,6 +90,9 @@ local function SUCC_positions()
 		SUCC_bagOptions.pos.bankl = this:GetLeft()
 		SUCC_bagOptions.pos.bankt = this:GetTop()
 	end)
+
+	SBFrameOpen(SUCC_bag)
+	SBFrameClose(SUCC_bag)
 end
 
 
@@ -719,12 +722,11 @@ local function OnEvent()
 		CloseAllBags = function() SBFrameClose(SUCC_bag) end
 		ToggleKeyRing = function() SBFrameToggle(SUCC_bag.keyring) end
 		SUCC_search()
-		if event == 'PLAYER_ENTERING_WORLD' then
-		SUCC_positions()
-		end
 		-- configuration
 		SLASH_SUCC_BAG1 = '/succbag'
 		print('|cFFF6A3EFSUCC-bag loaded. /succbag - configuration')
+	elseif event == 'PLAYER_ENTERING_WORLD' then
+		SUCC_positions()		
 	end
 end
 
