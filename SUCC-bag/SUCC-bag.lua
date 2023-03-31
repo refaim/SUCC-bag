@@ -75,10 +75,6 @@ local function SUCC_positions()
 		SUCC_bag.bank:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", SUCC_bagOptions.pos.bankl, SUCC_bagOptions.pos.bankt)
 	end
 
-	if not (SUCC_bagOptions.pos.bagl and SUCC_bagOptions.pos.bagt) then
-		SUCC_bagOptions.pos = {}
-	end
-
 	SUCC_bag:SetScript('OnMouseUp', function() 
 		this:StopMovingOrSizing()
 		SUCC_bagOptions.pos.bagl = this:GetLeft()
