@@ -66,12 +66,16 @@ local function SUCC_search()
 	end
 end
 
-local function SUCC_positions()	
+local function SUCC_positions()
+	SUCC_bag:ClearAllPoints()
 	if (SUCC_bagOptions.pos.bagl and SUCC_bagOptions.pos.bagt) then
 		SUCC_bag:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", SUCC_bagOptions.pos.bagl, SUCC_bagOptions.pos.bagt)
+	else
+		SUCC_bag:SetPoint('BOTTOMRIGHT', UIParent, -55, 55)
 	end
 
 	if (SUCC_bagOptions.pos.bankl and SUCC_bagOptions.pos.bankt) then
+		SUCC_bag.bank:ClearAllPoints()
 		SUCC_bag.bank:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", SUCC_bagOptions.pos.bankl, SUCC_bagOptions.pos.bankt)
 	end
 
@@ -86,11 +90,6 @@ local function SUCC_positions()
 		SUCC_bagOptions.pos.bankl = this:GetLeft()
 		SUCC_bagOptions.pos.bankt = this:GetTop()
 	end)
-
-	if SUCC_bag then
-		SUCC_bag:Show()
-		SUCC_bag:Hide()
-	end
 end
 
 
@@ -705,7 +704,6 @@ local function OnEvent()
 		this:RegisterEvent('CURSOR_UPDATE')
 		this:RegisterEvent('BANKFRAME_OPENED')
 		this:RegisterEvent('BANKFRAME_CLOSED')
-		this:RegisterEvent('PLAYER_ENTERING_WORLD')
 		this.bags = {0, 1, 2, 3, 4}
 		Essentials(this)
 		Essentials(this.keyring)
@@ -720,16 +718,15 @@ local function OnEvent()
 		CloseAllBags = function() SBFrameClose(SUCC_bag) end
 		ToggleKeyRing = function() SBFrameToggle(SUCC_bag.keyring) end
 		SUCC_search()
+		SUCC_positions()
 		-- configuration
 		SLASH_SUCC_BAG1 = '/succbag'
 		print('|cFFF6A3EFSUCC-bag loaded. /succbag - configuration')
-	elseif event == 'PLAYER_ENTERING_WORLD' then
-		SUCC_positions()		
 	end
 end
 
 SUCC_bag = CreateFrame('Frame', 'SUCC_bag', UIParent)
-SUCC_bag:SetPoint('BOTTOMRIGHT', UIParent, -55, 55)
+-- SUCC_bag:SetPoint('BOTTOMRIGHT', UIParent, -55, 55)
 SUCC_bag:RegisterEvent('ADDON_LOADED')
 SUCC_bag:SetScript('OnEvent', OnEvent)
 SUCC_bag:SetScript('OnShow', function()
