@@ -1,7 +1,7 @@
 ## Fork details ##
 
-A search bar has been added to the bags that allows you to filter items in the bags, bank and keyring.    
-The inventory and bank will also save their positions when moved.
+A search bar has been added that allows you to filter items in your inventory, bank and keyring.    
+The inventory and bank will also remember their positions when moved.
 
 ![SUCCbag](https://user-images.githubusercontent.com/107083057/234946553-9c0dfd94-ef42-4c34-8b6d-e9b99732fa20.png)
 
