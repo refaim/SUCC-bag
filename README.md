@@ -3,7 +3,7 @@
 A search bar has been added to the bags that allows you to filter items in the bags, bank and keyring.    
 The inventory and bank will also save their positions when moved.
 
-![succ-search](https://raw.githubusercontent.com/GryllsAddons/AddonPreviews/main/SUCC-bag/SUCC_search.png)
+![SUCCbag](https://user-images.githubusercontent.com/107083057/234946553-9c0dfd94-ef42-4c34-8b6d-e9b99732fa20.png)
 
 # SUCC-bag
 Sublime User Convenience Collection - player inventory and bank   
@@ -13,3 +13,4 @@ Sublime User Convenience Collection - player inventory and bank
 Sorting feature with [Clean_Up](https://github.com/shirsig/Clean_Up) addon
 
 Configurations available at /succbag
+
