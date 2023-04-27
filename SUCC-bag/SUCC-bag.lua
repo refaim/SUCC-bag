@@ -1,96 +1,3 @@
-local function SUCC_search()
-	if not SUCC_bag.search then
-		SUCC_bag.search = CreateFrame("Frame", "SUCC_search", SUCC_bag)
-		SUCC_bag.search:SetPoint("BOTTOMLEFT", SUCC_bag, "TOPLEFT", 9, 3)
-		SUCC_bag.search:SetPoint("TOPRIGHT", SUCC_bag, "TOPRIGHT", -1, 15)
-		
-		SUCC_bag.search.edit = CreateFrame("EditBox", nil, SUCC_bag.search, "InputBoxTemplate")		
-		SUCC_bag.search.edit:ClearAllPoints()
-		SUCC_bag.search.edit:SetAllPoints(SUCC_bag.search)
-
-		SUCC_bag.search.edit.text = SUCC_bag.search:CreateFontString(nil, "HIGH", "GameTooltipTextSmall")
-		local font, size = SUCC_bag.search.edit.text:GetFont()
-
-		SUCC_bag.search.edit:SetFont(font, size, "OUTLINE")
-		SUCC_bag.search.edit:SetAutoFocus(false)
-		SUCC_bag.search.edit:SetText("Search")
-		SUCC_bag.search.edit:SetTextColor(1,1,1,1)
-
-		local function Alpha(frame, a)
-			if frame:IsVisible() then
-				local frameName = frame:GetName()
-				for slot=1, frame.size do
-					getglobal(frameName.."Item"..slot):SetAlpha(a)
-				end
-			end
-		end
-
-		local function Search(frame)
-			if frame:IsVisible() then
-				local frameName = frame:GetName()
-				for slot = 1, frame.size do
-					local item = getglobal(frameName.."Item"..slot)
-					local _, itemCount = GetContainerItemInfo(item:GetParent():GetID(), item:GetID())
-					if itemCount then
-						local itemLink = GetContainerItemLink(item:GetParent():GetID(), item:GetID())
-						local itemstring = string.sub(itemLink, string.find(itemLink, "%[")+1, string.find(itemLink, "%]")-1)
-						if strfind(strlower(itemstring), strlower(string.gsub(this:GetText(), "([^%w])", "%%%1"))) then
-							item:SetAlpha(1)
-						end
-					end
-				end
-			end
-		end
-
-		SUCC_bag.search.edit:SetScript("OnEditFocusGained", function()
-			this:SetText("")
-		end)
-
-		SUCC_bag.search.edit:SetScript("OnEditFocusLost", function()
-			this:SetText("Search")
-			Alpha(SUCC_bag, 1)
-			Alpha(SUCC_bag.bank, 1)
-			Alpha(SUCC_bag.keyring, 1)
-		end)
-
-		SUCC_bag.search.edit:SetScript("OnTextChanged", function()
-			if this:GetText() == "Search" then return end
-			Alpha(SUCC_bag, .25)
-			Alpha(SUCC_bag.bank, .25)
-			Alpha(SUCC_bag.keyring, .25)
-
-			Search(SUCC_bag)
-			Search(SUCC_bag.bank)
-			Search(SUCC_bag.keyring)
-		end)
-	end
-end
-
-local function SUCC_positions()	
-	if (SUCC_bagOptions.pos.bagl and SUCC_bagOptions.pos.bagt) then
-		SUCC_bag:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", SUCC_bagOptions.pos.bagl, SUCC_bagOptions.pos.bagt)
-	end
-
-	if (SUCC_bagOptions.pos.bankl and SUCC_bagOptions.pos.bankt) then
-		SUCC_bag.bank:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", SUCC_bagOptions.pos.bankl, SUCC_bagOptions.pos.bankt)
-	end
-
-	SUCC_bag:SetScript('OnMouseUp', function() 
-		this:StopMovingOrSizing()
-		SUCC_bagOptions.pos.bagl = this:GetLeft()
-		SUCC_bagOptions.pos.bagt= this:GetTop()
-	end)
-
-	SUCC_bag.bank:SetScript('OnMouseUp', function() 
-		this:StopMovingOrSizing()
-		SUCC_bagOptions.pos.bankl = this:GetLeft()
-		SUCC_bagOptions.pos.bankt = this:GetTop()
-	end)
-
-	SBFrameOpen(SUCC_bag)
-	SBFrameClose(SUCC_bag)
-end
-
 
 function SUCC_bagDefaults()
 	SUCC_bagOptions = {}
@@ -113,12 +20,6 @@ function SUCC_bagDefaults()
 	SUCC_bagOptions.layout.columns.bag = 8
 	SUCC_bagOptions.layout.columns.bank = 8
 	SUCC_bagOptions.Clean_Up = 1
-	-- positions
-	SUCC_bagOptions.pos = {}
-	SUCC_bagOptions.pos.bagl = nil
-	SUCC_bagOptions.pos.bagt = nil
-	SUCC_bagOptions.pos.bankl = nil
-	SUCC_bagOptions.pos.bankt = nil
 	return SUCC_bagOptions
 end
 
@@ -465,13 +366,135 @@ local function FrameUpdateLock(frame)
 	end
 end
 
+local function SUCC_search()
+	search = CreateFrame("Frame", nil, SUCC_bag)
+	search:SetPoint("TOPLEFT", SUCC_bag, "BOTTOMLEFT", 4, 4)
+	search:SetHeight(29)
+	search:SetWidth(115) -- 132
+	search:SetBackdrop({
+		bgFile = 'Interface\\AddOns\\SUCC-bag\\Textures\\marble',
+		edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border',
+		tile = true, tileSize = 8, edgeSize = 16,
+		insets = { left = 3, right = 3, top = 3, bottom = 3 }
+	})
+	search:SetBackdropBorderColor(.5,.5,.5,1)
+	search:SetBackdropColor(unpack(SUCC_bagOptions.colors.backdrop))
+
+	search.text = search:CreateFontString(nil, "HIGH", "GameTooltipTextSmall")
+	local font, size = search.text:GetFont()
+	
+	search.edit = CreateFrame("EditBox", nil, search, "InputBoxTemplate")
+	search.edit:SetMaxLetters(14)	
+	search.edit:SetPoint("LEFT", search, "LEFT", 10, 0)
+	search.edit:SetHeight(20)
+	search.edit:SetWidth(100)
+	search.edit:SetFont(font, size, "OUTLINE")
+	search.edit:SetAutoFocus(false)
+	search.edit:SetText("Search")
+	search.edit:SetTextColor(1,1,1,1)
+
+	search.button = CreateFrame("Button", nil, search.edit)
+	search.button:SetFrameStrata("LOW")	
+	search.button:SetWidth(25)
+	search.button:SetHeight(25)
+	search.button:SetPoint("LEFT", search.edit, "RIGHT", 0, 0)
+	search.button:SetBackdrop({
+		bgFile = 'Interface\\AddOns\\SUCC-bag\\Textures\\marble',
+		edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border',
+		tile = true, tileSize = 8, edgeSize = 16,
+		insets = { left = 3, right = 3, top = 3, bottom = 3 }
+	})
+	search.button:SetBackdropBorderColor(.5,.5,.5,1)
+	search.button:SetBackdropColor(unpack(SUCC_bagOptions.colors.backdrop))
+	search.button:EnableMouse(true) 
+	search.button:Hide()
+	
+	search.icon = search.edit:CreateTexture(nil, "OVERLAY")
+	search.icon:SetPoint("CENTER", search.button, "CENTER", 1, 0)
+	search.icon:SetWidth(27)
+	search.icon:SetHeight(27)
+	search.icon:SetTexture('Interface\\Buttons\\UI-Panel-MinimizeButton-Up')
+	search.icon:SetDesaturated(true)
+	search.icon:Hide()
+
+	local function buttons(frame, a)
+		if frame:IsVisible() then
+			local name = frame:GetName()
+			for slot=1, frame.size do
+				getglobal(name.."Item"..slot):SetAlpha(a)
+			end
+		end
+	end
+
+	local function searchBag(frame)
+		if frame:IsVisible() then
+			local name = frame:GetName()
+			for slot = 1, frame.size do
+				local item = getglobal(name.."Item"..slot)
+				local _, itemCount = GetContainerItemInfo(item:GetParent():GetID(), item:GetID())
+				if itemCount then
+					local itemLink = GetContainerItemLink(item:GetParent():GetID(), item:GetID())
+					local itemstring = string.sub(itemLink, string.find(itemLink, "%[")+1, string.find(itemLink, "%]")-1)
+					if strfind(strlower(itemstring), strlower(string.gsub(this:GetText(), "([^%w])", "%%%1"))) then
+						item:SetAlpha(1)
+					end
+				end
+			end
+		end
+	end
+
+	local function reset()        
+		search.edit:SetText("Search")
+		buttons(SUCC_bag, 1)
+		buttons(SUCC_bag.bank, 1)
+		buttons(SUCC_bag.keyring, 1)
+		search.button:Hide()
+		search.icon:Hide()
+	end
+
+	search.edit:SetScript("OnEditFocusGained", function()
+		search.edit:SetText("")
+	end)
+
+	search.edit:SetScript("OnEditFocusLost", function()
+		reset()			
+	end)
+
+	search.edit:SetScript("OnTabPressed", function()
+		search.edit:ClearFocus()
+		reset()
+	end)
+
+	search.button:SetScript("OnClick", function()
+		search.edit:ClearFocus()
+		reset()
+	end)	
+
+	search.edit:SetScript("OnTextChanged", function()
+		if this:GetText() == "Search" then return end
+		buttons(SUCC_bag, .25)
+		buttons(SUCC_bag.bank, .25)
+		buttons(SUCC_bag.keyring, .25)
+
+		searchBag(SUCC_bag)
+		searchBag(SUCC_bag.bank)
+		searchBag(SUCC_bag.keyring)
+
+		if not search.button:IsVisible() then
+			search.button:Show()
+			search.icon:Show()
+		end
+	end)
+end
+
 local function Essentials(frame)
 	local t = frame:GetName()
 	frame:SetScript('OnMouseDown', function() this:StartMoving() end)
-	frame:SetScript('OnMouseUp', function() this:StopMovingOrSizing() end)	
+	frame:SetScript('OnMouseUp', function() this:StopMovingOrSizing() end)
 	frame:SetToplevel()
 	frame:EnableMouse()
 	frame:SetMovable()
+	frame:SetUserPlaced(true)
 	frame:SetClampedToScreen()
 	frame:SetBackdrop({
 		bgFile = 'Interface\\AddOns\\SUCC-bag\\Textures\\marble',
@@ -703,11 +726,10 @@ local function OnEvent()
 		this:RegisterEvent('CURSOR_UPDATE')
 		this:RegisterEvent('BANKFRAME_OPENED')
 		this:RegisterEvent('BANKFRAME_CLOSED')
-		this:RegisterEvent('PLAYER_ENTERING_WORLD')
 		this.bags = {0, 1, 2, 3, 4}
 		Essentials(this)
 		Essentials(this.keyring)
-		PrepareBank(this)		
+		PrepareBank(this)
 		ToggleBag = function() SBFrameToggle(SUCC_bag) end
 		ToggleBackpack = ToggleBag
 		OpenAllBags = ToggleBag
@@ -721,8 +743,6 @@ local function OnEvent()
 		-- configuration
 		SLASH_SUCC_BAG1 = '/succbag'
 		print('|cFFF6A3EFSUCC-bag loaded. /succbag - configuration')
-	elseif event == 'PLAYER_ENTERING_WORLD' then
-		SUCC_positions()		
 	end
 end
 
@@ -781,7 +801,7 @@ SUCC_bag.keyring.bags = {-2}
 SUCC_bag.keyring:SetScript('OnShow', function()
 	if SUCC_bag:IsVisible() then
 		this:ClearAllPoints()
-		this:SetPoint('BOTTOMLEFT', SUCC_bag, 'TOPLEFT', 0, 18)
+		this:SetPoint('BOTTOMLEFT', SUCC_bag, 'TOPLEFT', 0, 0)
 	end
 	PlaySound('KeyRingOpen')
 end)
