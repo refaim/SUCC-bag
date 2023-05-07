@@ -725,6 +725,7 @@ local function OnEvent()
 		this:RegisterEvent('CURSOR_UPDATE')
 		this:RegisterEvent('BANKFRAME_OPENED')
 		this:RegisterEvent('BANKFRAME_CLOSED')
+		this:RegisterEvent("PLAYER_ENTERING_WORLD")
 		this.bags = {0, 1, 2, 3, 4}
 		Essentials(this)
 		Essentials(this.keyring)
@@ -742,6 +743,8 @@ local function OnEvent()
 		-- configuration
 		SLASH_SUCC_BAG1 = '/succbag'
 		print('|cFFF6A3EFSUCC-bag loaded. /succbag - configuration')
+	elseif event == 'PLAYER_ENTERING_WORLD' then
+		SBFrameClose(SUCC_bag.bank)
 	end
 end
 
