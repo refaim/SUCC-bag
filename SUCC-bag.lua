@@ -1,5 +1,5 @@
 
-function SUCC_bagDefaults()
+local function SUCC_bagDefaults()
 	SUCC_bagOptions = {}
 	SUCC_bagOptions.colors = {}
 	SUCC_bagOptions.colors.highlight = {1, 0.2, 0.2 }
@@ -17,9 +17,13 @@ function SUCC_bagDefaults()
 	SUCC_bagOptions.layout = {}
 	SUCC_bagOptions.layout.spacing = 4
 	SUCC_bagOptions.layout.columns ={}
-	SUCC_bagOptions.layout.columns.bag = 8
-	SUCC_bagOptions.layout.columns.bank = 8
+	SUCC_bagOptions.layout.columns.bag = 11
+	SUCC_bagOptions.layout.columns.bank = 11
 	SUCC_bagOptions.Clean_Up = 1
+	SUCC_bagOptions.position = {}
+	SUCC_bagOptions.position["SUCC_bag"] = {1000.0, 380.0}
+	SUCC_bagOptions.position["SUCC_bagBank"] = {640.0, 440.0}
+	SUCC_bagOptions.position["SUCC_bagKeyring"] = {760.0, 740.0}
 	return SUCC_bagOptions
 end
 
@@ -326,7 +330,7 @@ local function RemoveBag(frame, bagID, bagSize)
 	end
 end
 
-function FrameUpdate(frame, bagID)
+local function FrameUpdate(frame, bagID)
 	local frameName = frame:GetName()
 	local startSlot = 1
 	local endSlot
@@ -337,7 +341,7 @@ function FrameUpdate(frame, bagID)
 			endSlot = GetKeyRingSize()
 			frameName = SUCC_bag.keyring:GetName()
 		else
-			if not frame.size or RemoveBag(frame, bagID, GetContainerNumSlots(bagID)) then return end
+			if not frame.size --[[or RemoveBag(frame, bagID, GetContainerNumSlots(bagID))]] then return end
 			for _, bag in pairs(frame.bags) do
 				if bag == bagID then
 					endSlot = startSlot + GetContainerNumSlots(bag) - 1
@@ -367,7 +371,7 @@ local function FrameUpdateLock(frame)
 end
 
 local function SUCC_search()
-	search = CreateFrame("Frame", nil, SUCC_bag)
+	local search = CreateFrame("Frame", nil, SUCC_bag)
 	search:SetPoint("TOPLEFT", SUCC_bag, "BOTTOMLEFT", 4, 4)
 	search:SetHeight(29)
 	search:SetWidth(115) -- 132
@@ -488,13 +492,23 @@ end
 
 local function Essentials(frame)
 	local t = frame:GetName()
+	if not SUCC_bagOptions.position then
+		SUCC_bagOptions.position = {}
+	end
+	if not SUCC_bagOptions.position[t] then
+		SUCC_bagOptions.position[t] = {frame:GetCenter()}
+	end
 	frame:SetScript('OnMouseDown', function() this:StartMoving() end)
-	frame:SetScript('OnMouseUp', function() this:StopMovingOrSizing() end)
+	frame:SetScript('OnMouseUp', function()
+		this:StopMovingOrSizing()
+		SUCC_bagOptions.position[t] = {frame:GetCenter()}
+	end)
 	frame:SetToplevel()
 	frame:EnableMouse()
 	frame:SetMovable()
 	frame:SetUserPlaced(true)
 	frame:SetClampedToScreen()
+	frame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", unpack(SUCC_bagOptions.position[t] or {frame:GetCenter()}))
 	frame:SetBackdrop({
 		bgFile = 'Interface\\AddOns\\SUCC-bag\\Textures\\marble',
 		edgeFile = 'Interface\\AddOns\\SUCC-bag\\Textures\\BagFrame',
@@ -629,7 +643,7 @@ end
 local function PrepareBank(frame)
 	if frame.bank then return frame.bank end
 	frame.bank = CreateFrame('Frame', 'SUCC_bagBank', UIParent)
-	frame.bank:SetPoint('TOPLEFT', 53, -116)
+	-- frame.bank:SetPoint('TOPLEFT', 53, -116)
 	frame.bank.bags = {-1, 5, 6, 7, 8, 9, 10}
 	frame.bank.cols = SUCC_bagOptions.layout.columns.bank or 8
 	frame.bank.slotFrame = CreateFrame('Frame', 'SUCC_bagBankSlotFrame', frame.bank)
@@ -725,7 +739,7 @@ local function OnEvent()
 		this:RegisterEvent('CURSOR_UPDATE')
 		this:RegisterEvent('BANKFRAME_OPENED')
 		this:RegisterEvent('BANKFRAME_CLOSED')
-		this:RegisterEvent("PLAYER_ENTERING_WORLD")
+		-- this:RegisterEvent("PLAYER_ENTERING_WORLD")
 		this.bags = {0, 1, 2, 3, 4}
 		Essentials(this)
 		Essentials(this.keyring)
@@ -743,13 +757,13 @@ local function OnEvent()
 		-- configuration
 		SLASH_SUCC_BAG1 = '/succbag'
 		print('|cFFF6A3EFSUCC-bag loaded. /succbag - configuration')
-	elseif event == 'PLAYER_ENTERING_WORLD' then
-		SBFrameClose(SUCC_bag.bank)
+	-- elseif event == 'PLAYER_ENTERING_WORLD' then
+	-- 	SBFrameClose(SUCC_bag.bank)
 	end
 end
 
 SUCC_bag = CreateFrame('Frame', 'SUCC_bag', UIParent)
-SUCC_bag:SetPoint('BOTTOMRIGHT', UIParent, -55, 55)
+-- SUCC_bag:SetPoint('BOTTOMRIGHT', UIParent, -55, 55)
 SUCC_bag:RegisterEvent('ADDON_LOADED')
 SUCC_bag:SetScript('OnEvent', OnEvent)
 SUCC_bag:SetScript('OnShow', function()
@@ -798,7 +812,7 @@ for i = 1, NUM_BAG_SLOTS, 1 do
 end
 
 SUCC_bag.keyring = CreateFrame('Frame', 'SUCC_bagKeyring', UIParent)
-SUCC_bag.keyring:SetPoint('BOTTOMRIGHT', UIParent, -55, 55)
+-- SUCC_bag.keyring:SetPoint('BOTTOMRIGHT', UIParent, -55, 55)
 SUCC_bag.keyring.bags = {-2}
 SUCC_bag.keyring:SetScript('OnShow', function()
 	if SUCC_bag:IsVisible() then
