@@ -453,10 +453,12 @@ local function SUCC_search()
 		buttons(SUCC_bag.keyring, 1)
 		search.button:Hide()
 		search.icon:Hide()
+        search.edit:UnregisterEvent("BAG_UPDATE")
 	end
 
 	search.edit:SetScript("OnEditFocusGained", function()
 		search.edit:SetText("")
+        search.edit:RegisterEvent("BAG_UPDATE")
 	end)
 
 	search.edit:SetScript("OnEditFocusLost", function()
@@ -488,6 +490,22 @@ local function SUCC_search()
 			search.icon:Show()
 		end
 	end)
+
+    search.edit:SetScript("OnEvent", function()
+        if this:GetText() == "Search" then return end
+		buttons(SUCC_bag, .25)
+		buttons(SUCC_bag.bank, .25)
+		buttons(SUCC_bag.keyring, .25)
+
+		searchBag(SUCC_bag)
+		searchBag(SUCC_bag.bank)
+		searchBag(SUCC_bag.keyring)
+
+		if not search.button:IsVisible() then
+			search.button:Show()
+			search.icon:Show()
+		end
+    end)
 end
 
 local function Essentials(frame)
@@ -688,6 +706,9 @@ local function PrepareBank(frame)
 	}
 	Essentials(frame.bank)
 	frame.bank:SetScript('OnHide', function()
+        for slot=1, SUCC_bag.bank.size do
+            getglobal(SUCC_bag.bank:GetName().."Item"..slot):SetAlpha(1)
+        end
 		CloseBankFrame()
 		PlaySound('igMainMenuClose')
 	end)
@@ -770,6 +791,9 @@ SUCC_bag:SetScript('OnShow', function()
 	PlaySound('igInventoryOepn')
 end)
 SUCC_bag:SetScript('OnHide', function()
+    for slot=1, (SUCC_bag.size or 0) do
+        getglobal(SUCC_bag:GetName().."Item"..slot):SetAlpha(1)
+    end
 	PlaySound('igInventoryClose')
 end)
 SUCC_bag.slotFrame = CreateFrame('Frame', 'SUCC_bagSlotFrame', SUCC_bag)
@@ -822,6 +846,9 @@ SUCC_bag.keyring:SetScript('OnShow', function()
 	PlaySound('KeyRingOpen')
 end)
 SUCC_bag.keyring:SetScript('OnHide', function()
+    for slot=1, (SUCC_bag.keyring.size or 0)do
+        getglobal(SUCC_bag.keyring:GetName().."Item"..slot):SetAlpha(1)
+    end
 	PlaySound('KeyRingClose')
 end)
 
