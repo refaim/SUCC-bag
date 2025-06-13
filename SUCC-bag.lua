@@ -1,3 +1,21 @@
+local function isSortingAddonLoaded()
+	return SortBags ~= nil and SortBankBags ~= nil or Clean_Up ~= nil
+end
+
+local function sortItems(where, reversed)
+	if SortBags ~= nil and SortBankBags ~= nil then
+		local oldReversed = GetSortBagsRightToLeft()
+		SetSortBagsRightToLeft(reversed)
+		if where == "bags" then
+			SortBags()
+		elseif where == "bank" then
+			SortBankBags()
+		end
+		SetSortBagsRightToLeft(oldReversed)
+	elseif Clean_Up ~= nil then
+		Clean_Up(where, reversed)
+	end
+end
 
 function SUCC_bagDefaults()
 	SUCC_bagOptions = {}
@@ -550,7 +568,7 @@ local function Essentials(frame)
 			GameTooltip:Show()
 		end)
 		frame.toggleButton:SetScript('OnLeave', function() GameTooltip:Hide() end)
-		if Clean_Up then
+		if isSortingAddonLoaded() then
 			frame.cuBag = CreateFrame('Button', t .. 'CU_button', frame)
 			frame.cuBag:SetHeight(12)
 			frame.cuBag:SetWidth(12)
@@ -562,11 +580,7 @@ local function Essentials(frame)
 			frame.cuBag:RegisterForClicks('LeftButtonUp', 'RightButtonUp')
 			frame.cuBag:SetScript('OnClick', function()
 				local c = frame.title.t ~= '' and frame.title.t ~= nil and string.lower(frame.title.t) or 'bags'
-				if arg1 == 'RightButton' then
-					Clean_Up(c, 1)
-				else
-					Clean_Up(c)
-				end
+				sortItems(c, arg1 == 'RightButton')
 			end)
 			frame.cuBag:SetScript('OnEnter', function()
 				GameTooltip:SetOwner(this, 'ANCHOR_LEFT')
@@ -1068,7 +1082,7 @@ local function CreateMenuFrame()
 	menu.override.t:SetWidth(200)
 	menu.override.t:SetText('Quality color above bag color:')
 
-	if Clean_Up then
+	if isSortingAddonLoaded() then
 		menu.cleanup = CreateFrame('CheckButton', 'SBC_cleanUp', menu, 'UICheckButtonTemplate')
 		menu.cleanup:SetHeight(25)
 		menu.cleanup:SetWidth(25)
